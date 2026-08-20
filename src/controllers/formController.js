@@ -1,36 +1,77 @@
-import Submission from "../models/Submission.js";
-import transporter from "../config/mailer.js";
+import Client from "../models/client.js";
+import PendingSubmission from "../models/pendingSubmission.js";
+import CREATE_ACCOUNT from "../utils/createAccount.js";
+import SEND_DATA_TO_EMAIL from "../utils/sendFormDataMail.js";
+import SEND_TO_SHEET from "../utils/sendToGoogleSheet.js";
 
-export const submitForm = async (req, res) => {
-  try {
-    const { name, email, message } = req.body;
+const formSubmission = async (req, res) => {
+    try {
+        const emailAddress = req.params.email || req.params.emailAddress;
+        const formData = req.body;
+        const sheetId = req.query.sheet; // ✅ Sheet ID passed as query param
 
-    const submission = await Submission.create({
-      name,
-      email,
-      message
-    });
+        console.log("Request URL:", req.originalUrl);
+        console.log("Sheet ID:", req.query.sheet);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_RECEIVER,
-      subject: "New Form Submission",
-      html: `
-        <h2>New Submission</h2>
-        <p>Name: ${name}</p>
-        <p>Email: ${email}</p>
-        <p>Message: ${message}</p>
-      `
-    });
 
-    res.status(201).json({
-      success: true,
-      submission
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
+
+        if (!emailAddress) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        const client = await Client.findOne({ email: emailAddress });
+
+        if (!client) {
+            console.log("Client not found, sending account creation email...");
+
+            // Store form temporarily
+            await PendingSubmission.findOneAndUpdate(
+                { email: emailAddress },
+                { formData, sheetId },
+                { upsert: true }
+            );
+
+            const mailResponse = await CREATE_ACCOUNT(emailAddress);
+
+            if (!mailResponse.success) {
+                return res.status(424).json({
+                    message: "Client not found and failed to send email",
+                    email: emailAddress,
+                    error: mailResponse.error
+                });
+            }
+
+            return res
+                .render("account-creation", { email: emailAddress })
+            // .status(200).json({
+            //     success: true,
+            //     message: "Account creation email sent",
+            //     email: emailAddress
+            // });
+        }
+
+        // ✅ If client exists, send email + Google Sheet
+        await SEND_DATA_TO_EMAIL(emailAddress, formData);
+
+        console.log(sheetId);
+        if (sheetId) {
+            await SEND_TO_SHEET(sheetId, formData);
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Form data sent + Store in sheet ",
+            email: emailAddress
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({
+            error: "Internal server error",
+            details: error.message
+        });
+    }
 };
+
+
+export default formSubmission;

@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: form2mail
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BASE_URL
+        value: https://form2mail.amnkmr.xyz
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 465
+      - key: SMTP_SECURE
+        value: true
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: FROM_NAME
+        value: "Form2Mail"

@@ -1,38 +1,60 @@
 {
   "name": "form2mail",
   "version": "1.0.0",
-  "description": "Tired of complex form handlers? FormSubmit Pro is the simplest way to collect form submissions and deliver them straight to your inbox—no backend code, no plugins, just a clean email with all the details.",
+  "description": "A cloud-based form submission service that stores form data in MongoDB Atlas and sends email notifications using Nodemailer.",
   "keywords": [
-    "Form to email",
-    "HTML form to email",
-    "Free form handler"
+    "nodejs",
+    "express",
+    "mongodb",
+    "nodemailer",
+    "form-handler",
+    "rest-api"
   ],
-  "license": "ISC",
   "author": "Aman Kumar",
+  "license": "MIT",
   "type": "module",
   "main": "index.js",
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aman7827/form2mail.git"
+  },
+
+  "homepage": "https://github.com/aman7827/form2mail",
+
+  "bugs": {
+    "url": "https://github.com/aman7827/form2mail/issues"
+  },
+
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit",
     "coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
+
   "dependencies": {
+    "axios": "^1.7.9",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "ejs": "^3.1.10",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.2",
     "express-validator": "^7.3.2",
+    "googleapis": "^144.0.0",
     "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.9.3",
     "nodemailer": "^9.0.5"
   },
+
   "devDependencies": {
     "jest": "^30.4.2",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
   },
+
   "jest": {
     "testEnvironment": "node"
   }
